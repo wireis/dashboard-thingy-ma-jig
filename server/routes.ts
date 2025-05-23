@@ -197,22 +197,93 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // System health endpoint (mock data)
+  // System health endpoint (Glances integration)
   app.get("/api/system-health", async (req, res) => {
     try {
-      // In a real implementation, this would gather actual system metrics
+      const glancesUrl = process.env.GLANCES_URL;
+      const glancesPassword = process.env.GLANCES_PASSWORD;
+      
+      if (!glancesUrl) {
+        // Fallback to mock data if Glances not configured
+        const health = {
+          cpu: Math.floor(Math.random() * 40) + 10,
+          memory: Math.floor(Math.random() * 50) + 30,
+          storage: Math.floor(Math.random() * 60) + 20,
+          networkStatus: "Glances Not Configured",
+          networkDown: 0,
+          networkUp: 0,
+        };
+        return res.json(health);
+      }
+
+      // Fetch data from Glances API
+      const headers: Record<string, string> = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      };
+
+      if (glancesPassword) {
+        headers['Authorization'] = `Basic ${Buffer.from(`glances:${glancesPassword}`).toString('base64')}`;
+      }
+
+      const [cpuResponse, memResponse, fsResponse, networkResponse] = await Promise.allSettled([
+        fetch(`${glancesUrl}/api/3/cpu`, { headers }),
+        fetch(`${glancesUrl}/api/3/mem`, { headers }),
+        fetch(`${glancesUrl}/api/3/fs`, { headers }),
+        fetch(`${glancesUrl}/api/3/network`, { headers })
+      ]);
+
+      let cpu = 0, memory = 0, storage = 0;
+      let networkDown = 0, networkUp = 0, networkStatus = "Unknown";
+
+      // Parse CPU data
+      if (cpuResponse.status === 'fulfilled' && cpuResponse.value.ok) {
+        const cpuData = await cpuResponse.value.json();
+        cpu = Math.round(cpuData.total || 0);
+      }
+
+      // Parse Memory data
+      if (memResponse.status === 'fulfilled' && memResponse.value.ok) {
+        const memData = await memResponse.value.json();
+        memory = Math.round((memData.percent || 0));
+      }
+
+      // Parse Filesystem data (get highest usage)
+      if (fsResponse.status === 'fulfilled' && fsResponse.value.ok) {
+        const fsData = await fsResponse.value.json();
+        if (Array.isArray(fsData) && fsData.length > 0) {
+          storage = Math.round(Math.max(...fsData.map(fs => fs.percent || 0)));
+        }
+      }
+
+      // Parse Network data
+      if (networkResponse.status === 'fulfilled' && networkResponse.value.ok) {
+        const networkData = await networkResponse.value.json();
+        if (Array.isArray(networkData) && networkData.length > 0) {
+          // Sum all network interfaces
+          const totalRx = networkData.reduce((sum, iface) => sum + (iface.rx_sec || 0), 0);
+          const totalTx = networkData.reduce((sum, iface) => sum + (iface.tx_sec || 0), 0);
+          
+          // Convert bytes/sec to Mbps
+          networkDown = Math.round((totalRx * 8) / 1000000);
+          networkUp = Math.round((totalTx * 8) / 1000000);
+          networkStatus = "Connected";
+        }
+      }
+
       const health = {
-        cpu: Math.floor(Math.random() * 40) + 10, // 10-50%
-        memory: Math.floor(Math.random() * 50) + 30, // 30-80%
-        storage: Math.floor(Math.random() * 60) + 20, // 20-80%
-        networkStatus: "Optimal",
-        networkDown: Math.floor(Math.random() * 200) + 50, // 50-250 Mbps
-        networkUp: Math.floor(Math.random() * 100) + 25, // 25-125 Mbps
+        cpu,
+        memory,
+        storage,
+        networkStatus: networkStatus || "Connected",
+        networkDown,
+        networkUp,
       };
       
       res.json(health);
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch system health" });
+      console.error("Glances API error:", error);
+      res.status(500).json({ error: "Failed to fetch system health from Glances" });
     }
   });
 
