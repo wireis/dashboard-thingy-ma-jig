@@ -147,7 +147,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // RSS feed endpoint for GB News
   app.get("/api/rss/gb-news", async (req, res) => {
     try {
-      const response = await fetch("https://www.gbnews.com/feed", {
+      const response = await fetch("https://www.gbnews.com/feeds/politics.rss", {
         headers: {
           'User-Agent': 'Mozilla/5.0 (compatible; RSS Reader)',
           'Accept': 'application/rss+xml, application/xml, text/xml'
