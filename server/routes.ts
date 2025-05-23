@@ -91,15 +91,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/bitcoin", async (req, res) => {
     try {
       const apiKey = process.env.COINGECKO_API_KEY;
-      const baseUrl = apiKey 
-        ? "https://pro-api.coingecko.com/api/v3/simple/price"
-        : "https://api.coingecko.com/api/v3/simple/price";
       
-      const headers = apiKey ? { 'x-cg-pro-api-key': apiKey } : {};
+      // Use demo API endpoint for demo keys, pro API for paid keys
+      const baseUrl = "https://api.coingecko.com/api/v3/simple/price";
+      const fetchOptions: RequestInit = {};
+      
+      if (apiKey) {
+        fetchOptions.headers = { 'x-cg-demo-api-key': apiKey };
+      }
       
       const response = await fetch(
         `${baseUrl}?ids=bitcoin&vs_currencies=usd&include_24hr_change=true&include_market_cap=true&include_24hr_vol=true`,
-        { headers }
+        fetchOptions
       );
       
       if (!response.ok) {
@@ -144,7 +147,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // RSS feed endpoint for GB News
   app.get("/api/rss/gb-news", async (req, res) => {
     try {
-      const response = await fetch("https://www.gbnews.com/feed", {
+      const response = await fetch("https://www.gbnews.uk/feed", {
         headers: {
           'User-Agent': 'Mozilla/5.0 (compatible; RSS Reader)',
           'Accept': 'application/rss+xml, application/xml, text/xml'
