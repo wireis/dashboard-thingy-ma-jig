@@ -22,10 +22,17 @@ export default function QuickLinks() {
   // Fetch quick links
   const fetchQuickLinks = async () => {
     try {
-      const response = await fetch("/api/quick-links");
+      const response = await fetch("/api/quick-links", {
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
       if (response.ok) {
         const data = await response.json();
+        console.log("Fetched quick links:", data);
         setQuickLinks(data);
+      } else {
+        console.error("Failed to fetch quick links - status:", response.status);
       }
     } catch (error) {
       console.error("Failed to fetch quick links:", error);

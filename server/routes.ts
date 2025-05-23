@@ -328,6 +328,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/quick-links", async (req, res) => {
+    try {
+      const { category } = req.query;
+      
+      let quickLinks;
+      if (category) {
+        quickLinks = await storage.getQuickLinksByCategory(category as string);
+      } else {
+        quickLinks = await storage.getQuickLinks();
+      }
+      
+      res.json(quickLinks);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch quick links" });
+    }
+  });
+
   app.get("/api/quick-links/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
