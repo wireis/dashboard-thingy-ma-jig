@@ -2,7 +2,7 @@ import { useState } from "react";
 import DashboardHeader from "@/components/dashboard-header";
 import QuickStats from "@/components/quick-stats";
 import ServicesGrid from "@/components/services-grid";
-import BitcoinTracker from "@/components/bitcoin-tracker";
+
 import RSSFeed from "@/components/rss-feed";
 import SystemHealth from "@/components/system-health";
 import AddServiceModal from "@/components/add-service-modal";
@@ -33,7 +33,6 @@ export default function Dashboard() {
           </div>
           
           <div className="space-y-6">
-            <BitcoinTracker />
             <RSSFeed />
             <SystemHealth />
           </div>
