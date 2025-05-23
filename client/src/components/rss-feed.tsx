@@ -72,7 +72,7 @@ export default function RSSFeed() {
                     rel="noopener noreferrer"
                     className="flex items-start gap-2"
                   >
-                    <span className="line-clamp-2">{item.title}</span>
+                    <span>{item.title}</span>
                     <ExternalLink className="w-3 h-3 mt-0.5 flex-shrink-0 opacity-60" />
                   </a>
                 </h4>
