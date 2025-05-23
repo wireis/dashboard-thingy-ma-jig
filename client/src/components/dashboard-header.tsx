@@ -1,4 +1,5 @@
-import { Search, Plus, Server } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search, Plus, Server, Edit3, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -13,6 +14,31 @@ export default function DashboardHeader({
   searchQuery, 
   onSearchChange 
 }: DashboardHeaderProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [dashboardTitle, setDashboardTitle] = useState("Services Dashboard");
+  const [tempTitle, setTempTitle] = useState(dashboardTitle);
+
+  const handleSaveTitle = () => {
+    setDashboardTitle(tempTitle);
+    setIsEditing(false);
+    // Save to localStorage for persistence
+    localStorage.setItem('dashboardTitle', tempTitle);
+  };
+
+  const handleCancelEdit = () => {
+    setTempTitle(dashboardTitle);
+    setIsEditing(false);
+  };
+
+  // Load saved title on component mount
+  useEffect(() => {
+    const savedTitle = localStorage.getItem('dashboardTitle');
+    if (savedTitle) {
+      setDashboardTitle(savedTitle);
+      setTempTitle(savedTitle);
+    }
+  }, []);
+
   return (
     <header className="bg-slate-800 border-b border-slate-700 px-6 py-4">
       <div className="flex items-center justify-between max-w-7xl mx-auto">
@@ -21,7 +47,50 @@ export default function DashboardHeader({
             <Server className="text-white text-lg" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-white">Services Dashboard</h1>
+            <div className="flex items-center gap-2">
+              {isEditing ? (
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={tempTitle}
+                    onChange={(e) => setTempTitle(e.target.value)}
+                    className="text-2xl font-bold text-white bg-slate-700 border-slate-600 h-8 px-2"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleSaveTitle();
+                      if (e.key === 'Escape') handleCancelEdit();
+                    }}
+                    autoFocus
+                  />
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={handleSaveTitle}
+                    className="h-8 w-8 p-0 text-green-400 hover:text-green-300 hover:bg-slate-700"
+                  >
+                    <Check className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={handleCancelEdit}
+                    className="h-8 w-8 p-0 text-red-400 hover:text-red-300 hover:bg-slate-700"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <h1 className="text-2xl font-bold text-white">{dashboardTitle}</h1>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setIsEditing(true)}
+                    className="h-8 w-8 p-0 text-slate-400 hover:text-white hover:bg-slate-700"
+                  >
+                    <Edit3 className="w-4 h-4" />
+                  </Button>
+                </>
+              )}
+            </div>
             <p className="text-slate-400 text-sm">Manage your self-hosted infrastructure</p>
           </div>
         </div>
