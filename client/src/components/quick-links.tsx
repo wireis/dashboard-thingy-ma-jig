@@ -15,8 +15,10 @@ export default function QuickLinks() {
   const [editingLink, setEditingLink] = useState<QuickLink | null>(null);
   const queryClient = useQueryClient();
 
-  const { data: quickLinks = [], isLoading } = useQuery<QuickLink[]>({
+  const { data: quickLinks = [], isLoading, refetch } = useQuery<QuickLink[]>({
     queryKey: ["/api/quick-links"],
+    refetchOnWindowFocus: true,
+    staleTime: 0,
   });
 
   const deleteMutation = useMutation({
@@ -29,6 +31,7 @@ export default function QuickLinks() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/quick-links"] });
+      queryClient.refetchQueries({ queryKey: ["/api/quick-links"] });
     },
   });
 
