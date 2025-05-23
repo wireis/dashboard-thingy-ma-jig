@@ -6,8 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { ExternalLink, Plus, Edit, Trash2, Globe } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import type { QuickLink, InsertQuickLink, UpdateQuickLink } from "@shared/schema";
-import AddQuickLinkModal from "./add-quick-link-modal";
-import EditQuickLinkModal from "./edit-quick-link-modal";
+import AddQuickLinkModal from "@/components/add-quick-link-modal";
+import EditQuickLinkModal from "@/components/edit-quick-link-modal";
 
 export default function QuickLinks() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -15,7 +15,7 @@ export default function QuickLinks() {
   const [editingLink, setEditingLink] = useState<QuickLink | null>(null);
   const queryClient = useQueryClient();
 
-  const { data: quickLinks = [], isLoading } = useQuery({
+  const { data: quickLinks = [], isLoading } = useQuery<QuickLink[]>({
     queryKey: ["/api/quick-links"],
   });
 

@@ -44,6 +44,7 @@ export default function AddQuickLinkModal({ isOpen, onClose }: AddQuickLinkModal
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/quick-links"] });
+      queryClient.refetchQueries({ queryKey: ["/api/quick-links"] });
       toast({
         title: "Success",
         description: "Quick link added successfully",
