@@ -110,7 +110,7 @@ export default function EditServiceModal({ isOpen, onClose, service }: EditServi
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="bg-slate-800 border-slate-700 max-w-md">
+      <DialogContent className="bg-slate-800 border-slate-700 max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-white">
             Edit Service
