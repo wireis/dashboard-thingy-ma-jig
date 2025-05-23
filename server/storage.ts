@@ -1,4 +1,6 @@
 import { services, type Service, type InsertService, type UpdateService } from "@shared/schema";
+import { db } from "./db";
+import { eq, like, or } from "drizzle-orm";
 
 export interface IStorage {
   // Service CRUD operations
@@ -14,130 +16,70 @@ export interface IStorage {
   getServicesByCategory(category: string): Promise<Service[]>;
 }
 
-export class MemStorage implements IStorage {
-  private services: Map<number, Service>;
-  private currentId: number;
-
-  constructor() {
-    this.services = new Map();
-    this.currentId = 1;
-    this.initializeDefaultServices();
-  }
-
-  private initializeDefaultServices() {
-    // Add some default services for demonstration
-    const defaultServices: InsertService[] = [
-      {
-        name: "Main VPS",
-        url: "https://165.232.123.45",
-        category: "VPS",
-        description: "Primary Digital Ocean VPS hosting main applications",
-        provider: "Digital Ocean",
-        location: "London, UK",
-      },
-      {
-        name: "Nextcloud",
-        url: "http://localhost:8080",
-        category: "Docker",
-        description: "Self-hosted cloud storage and collaboration platform",
-        provider: "Docker Container",
-        port: "8080",
-      },
-      {
-        name: "Plex Media Server",
-        url: "http://localhost:32400",
-        category: "Docker",
-        description: "Media streaming server for movies and TV shows",
-        provider: "Docker Container",
-        port: "32400",
-      },
-      {
-        name: "Portainer",
-        url: "http://localhost:9000",
-        category: "Docker",
-        description: "Docker container management interface",
-        provider: "Docker Management",
-        port: "9000",
-      },
-      {
-        name: "IONOS VPS",
-        url: "https://82.165.79.142",
-        category: "VPS",
-        description: "Secondary VPS for backup services",
-        provider: "IONOS Cloud",
-        location: "Frankfurt, DE",
-      },
-      {
-        name: "Pi-hole",
-        url: "http://192.168.1.100:8081",
-        category: "Network",
-        description: "Network-wide ad blocker and DNS server",
-        provider: "Raspberry Pi",
-        port: "8081",
-      },
-    ];
-
-    defaultServices.forEach(service => {
-      this.createService(service);
-    });
-  }
-
+export class DatabaseStorage implements IStorage {
   async getServices(): Promise<Service[]> {
-    return Array.from(this.services.values()).sort((a, b) => a.id - b.id);
+    const result = await db.select().from(services).orderBy(services.id);
+    return result;
   }
 
   async getService(id: number): Promise<Service | undefined> {
-    return this.services.get(id);
+    const [service] = await db.select().from(services).where(eq(services.id, id));
+    return service || undefined;
   }
 
   async createService(insertService: InsertService): Promise<Service> {
-    const id = this.currentId++;
-    const service: Service = {
-      ...insertService,
-      id,
-      status: "unknown",
-      lastChecked: null,
-      createdAt: new Date(),
-    };
-    this.services.set(id, service);
+    const [service] = await db
+      .insert(services)
+      .values({
+        ...insertService,
+        port: insertService.port || null,
+        description: insertService.description || null,
+        provider: insertService.provider || null,
+        location: insertService.location || null,
+      })
+      .returning();
     return service;
   }
 
   async updateService(id: number, updates: UpdateService): Promise<Service | undefined> {
-    const existingService = this.services.get(id);
-    if (!existingService) {
-      return undefined;
-    }
-
-    const updatedService: Service = {
-      ...existingService,
-      ...updates,
-    };
-
-    this.services.set(id, updatedService);
-    return updatedService;
+    const [service] = await db
+      .update(services)
+      .set({
+        ...updates,
+        port: updates.port || null,
+        description: updates.description || null,
+        provider: updates.provider || null,
+        location: updates.location || null,
+      })
+      .where(eq(services.id, id))
+      .returning();
+    return service || undefined;
   }
 
   async deleteService(id: number): Promise<boolean> {
-    return this.services.delete(id);
+    const result = await db.delete(services).where(eq(services.id, id));
+    return result.rowCount > 0;
   }
 
   async updateServiceStatus(id: number, status: string): Promise<void> {
-    const service = this.services.get(id);
-    if (service) {
-      service.status = status;
-      service.lastChecked = new Date();
-      this.services.set(id, service);
-    }
+    await db
+      .update(services)
+      .set({ 
+        status, 
+        lastChecked: new Date() 
+      })
+      .where(eq(services.id, id));
   }
 
   async searchServices(query: string): Promise<Service[]> {
-    const lowercaseQuery = query.toLowerCase();
-    return Array.from(this.services.values()).filter(service =>
-      service.name.toLowerCase().includes(lowercaseQuery) ||
-      service.description?.toLowerCase().includes(lowercaseQuery) ||
-      service.provider?.toLowerCase().includes(lowercaseQuery) ||
-      service.category.toLowerCase().includes(lowercaseQuery)
+    const lowercaseQuery = `%${query.toLowerCase()}%`;
+    return await db.select().from(services).where(
+      or(
+        like(services.name, lowercaseQuery),
+        like(services.description, lowercaseQuery),
+        like(services.provider, lowercaseQuery),
+        like(services.category, lowercaseQuery)
+      )
     );
   }
 
@@ -145,10 +87,8 @@ export class MemStorage implements IStorage {
     if (category === "All") {
       return this.getServices();
     }
-    return Array.from(this.services.values()).filter(service =>
-      service.category === category
-    );
+    return await db.select().from(services).where(eq(services.category, category));
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
