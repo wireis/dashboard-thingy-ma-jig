@@ -23,19 +23,31 @@ export default function QuickLinks() {
   const fetchQuickLinks = async () => {
     try {
       const response = await fetch("/api/quick-links", {
+        method: 'GET',
         headers: {
           'Accept': 'application/json',
+          'Content-Type': 'application/json',
         },
       });
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Fetched quick links:", data);
-        setQuickLinks(data);
+      
+      const text = await response.text();
+      
+      if (response.ok && text) {
+        try {
+          const data = JSON.parse(text);
+          console.log("Fetched quick links:", data);
+          setQuickLinks(Array.isArray(data) ? data : []);
+        } catch (parseError) {
+          console.error("Failed to parse JSON:", parseError, "Response:", text.substring(0, 200));
+          setQuickLinks([]);
+        }
       } else {
-        console.error("Failed to fetch quick links - status:", response.status);
+        console.error("Failed to fetch quick links - status:", response.status, "Response:", text.substring(0, 200));
+        setQuickLinks([]);
       }
     } catch (error) {
       console.error("Failed to fetch quick links:", error);
+      setQuickLinks([]);
     } finally {
       setIsLoading(false);
     }
