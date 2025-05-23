@@ -4,7 +4,8 @@ import QuickStats from "@/components/quick-stats";
 import ServicesGrid from "@/components/services-grid";
 import RSSFeed from "@/components/rss-feed";
 import SystemHealth from "@/components/system-health";
-import QuickLinks from "@/components/quick-links";
+import SimpleQuickLinks from "@/components/simple-quick-links";
+
 import AddServiceModal from "@/components/add-service-modal";
 
 export default function Dashboard() {
@@ -33,7 +34,7 @@ export default function Dashboard() {
           </div>
           
           <div className="space-y-6">
-            <QuickLinks />
+            <SimpleQuickLinks />
             <RSSFeed />
             <SystemHealth />
           </div>
