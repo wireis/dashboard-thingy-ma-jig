@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertServiceSchema, updateServiceSchema } from "@shared/schema";
+import { insertServiceSchema, updateServiceSchema, insertQuickLinkSchema, updateQuickLinkSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -318,5 +318,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   const httpServer = createServer(app);
+  // Quick Links routes
+  app.get("/api/quick-links", async (req, res) => {
+    try {
+      const quickLinks = await storage.getQuickLinks();
+      res.json(quickLinks);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch quick links" });
+    }
+  });
+
+  app.get("/api/quick-links/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const quickLink = await storage.getQuickLink(id);
+      if (!quickLink) {
+        return res.status(404).json({ error: "Quick link not found" });
+      }
+      res.json(quickLink);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch quick link" });
+    }
+  });
+
+  app.post("/api/quick-links", async (req, res) => {
+    try {
+      const validatedData = insertQuickLinkSchema.parse(req.body);
+      const quickLink = await storage.createQuickLink(validatedData);
+      res.status(201).json(quickLink);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid data", details: error.errors });
+      }
+      res.status(500).json({ error: "Failed to create quick link" });
+    }
+  });
+
+  app.patch("/api/quick-links/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const validatedData = updateQuickLinkSchema.parse(req.body);
+      const quickLink = await storage.updateQuickLink(id, validatedData);
+      if (!quickLink) {
+        return res.status(404).json({ error: "Quick link not found" });
+      }
+      res.json(quickLink);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid data", details: error.errors });
+      }
+      res.status(500).json({ error: "Failed to update quick link" });
+    }
+  });
+
+  app.delete("/api/quick-links/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const success = await storage.deleteQuickLink(id);
+      if (!success) {
+        return res.status(404).json({ error: "Quick link not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete quick link" });
+    }
+  });
+
   return httpServer;
 }

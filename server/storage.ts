@@ -1,4 +1,4 @@
-import { services, type Service, type InsertService, type UpdateService } from "@shared/schema";
+import { services, quickLinks, type Service, type InsertService, type UpdateService, type QuickLink, type InsertQuickLink, type UpdateQuickLink } from "@shared/schema";
 import { db } from "./db";
 import { eq, like, or } from "drizzle-orm";
 
@@ -14,6 +14,14 @@ export interface IStorage {
   // Search functionality
   searchServices(query: string): Promise<Service[]>;
   getServicesByCategory(category: string): Promise<Service[]>;
+
+  // Quick Links CRUD operations
+  getQuickLinks(): Promise<QuickLink[]>;
+  getQuickLink(id: number): Promise<QuickLink | undefined>;
+  createQuickLink(quickLink: InsertQuickLink): Promise<QuickLink>;
+  updateQuickLink(id: number, updates: UpdateQuickLink): Promise<QuickLink | undefined>;
+  deleteQuickLink(id: number): Promise<boolean>;
+  getQuickLinksByCategory(category: string): Promise<QuickLink[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -88,6 +96,44 @@ export class DatabaseStorage implements IStorage {
       return this.getServices();
     }
     return await db.select().from(services).where(eq(services.category, category));
+  }
+
+  // Quick Links methods
+  async getQuickLinks(): Promise<QuickLink[]> {
+    const result = await db.select().from(quickLinks).orderBy(quickLinks.id);
+    return result;
+  }
+
+  async getQuickLink(id: number): Promise<QuickLink | undefined> {
+    const [quickLink] = await db.select().from(quickLinks).where(eq(quickLinks.id, id));
+    return quickLink || undefined;
+  }
+
+  async createQuickLink(insertQuickLink: InsertQuickLink): Promise<QuickLink> {
+    const [quickLink] = await db
+      .insert(quickLinks)
+      .values(insertQuickLink)
+      .returning();
+    return quickLink;
+  }
+
+  async updateQuickLink(id: number, updates: UpdateQuickLink): Promise<QuickLink | undefined> {
+    const [quickLink] = await db
+      .update(quickLinks)
+      .set(updates)
+      .where(eq(quickLinks.id, id))
+      .returning();
+    return quickLink || undefined;
+  }
+
+  async deleteQuickLink(id: number): Promise<boolean> {
+    const result = await db.delete(quickLinks).where(eq(quickLinks.id, id));
+    return (result.rowCount || 0) > 0;
+  }
+
+  async getQuickLinksByCategory(category: string): Promise<QuickLink[]> {
+    const result = await db.select().from(quickLinks).where(eq(quickLinks.category, category));
+    return result;
   }
 }
 

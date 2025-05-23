@@ -29,6 +29,28 @@ export type InsertService = z.infer<typeof insertServiceSchema>;
 export type UpdateService = z.infer<typeof updateServiceSchema>;
 export type Service = typeof services.$inferSelect;
 
+// Quick Links schema
+export const quickLinks = pgTable("quick_links", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  url: text("url").notNull(),
+  description: text("description"),
+  icon: text("icon"), // For storing icon name or URL
+  category: text("category").default("General"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertQuickLinkSchema = createInsertSchema(quickLinks).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const updateQuickLinkSchema = insertQuickLinkSchema.partial();
+
+export type InsertQuickLink = z.infer<typeof insertQuickLinkSchema>;
+export type UpdateQuickLink = z.infer<typeof updateQuickLinkSchema>;
+export type QuickLink = typeof quickLinks.$inferSelect;
+
 // Bitcoin data type
 export interface BitcoinData {
   price: number;
