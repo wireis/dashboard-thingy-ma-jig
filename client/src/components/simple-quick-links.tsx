@@ -19,10 +19,15 @@ export default function SimpleQuickLinks() {
 
   const addMutation = useMutation({
     mutationFn: async (data: InsertQuickLink) => {
-      return apiRequest("/api/quick-links", {
+      const response = await fetch("/api/quick-links", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(data),
       });
+      if (!response.ok) throw new Error("Failed to add quick link");
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/quick-links"] });
@@ -33,9 +38,11 @@ export default function SimpleQuickLinks() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      return apiRequest(`/api/quick-links/${id}`, {
+      const response = await fetch(`/api/quick-links/${id}`, {
         method: "DELETE",
       });
+      if (!response.ok) throw new Error("Failed to delete quick link");
+      return response;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/quick-links"] });
