@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import ServiceCard from "./service-card";
+import EditServiceModal from "./edit-service-modal";
 import type { Service } from "@shared/schema";
 
 interface ServicesGridProps {
@@ -14,9 +16,22 @@ export default function ServicesGrid({
   selectedCategory, 
   onCategoryChange 
 }: ServicesGridProps) {
+  const [editingService, setEditingService] = useState<Service | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  
   const { data: services = [], isLoading } = useQuery<Service[]>({
     queryKey: ["/api/services", { category: selectedCategory, search: searchQuery }],
   });
+
+  const handleEditService = (service: Service) => {
+    setEditingService(service);
+    setIsEditModalOpen(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+    setEditingService(null);
+  };
 
   const categories = ["All", "VPS", "Docker", "External", "Network"];
 
@@ -66,10 +81,16 @@ export default function ServicesGrid({
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {services.map((service) => (
-            <ServiceCard key={service.id} service={service} />
+            <ServiceCard key={service.id} service={service} onEdit={handleEditService} />
           ))}
         </div>
       )}
+
+      <EditServiceModal 
+        isOpen={isEditModalOpen}
+        onClose={handleCloseEditModal}
+        service={editingService}
+      />
     </div>
   );
 }

@@ -6,6 +6,7 @@ import type { Service } from "@shared/schema";
 
 interface ServiceCardProps {
   service: Service;
+  onEdit: (service: Service) => void;
 }
 
 const categoryIcons = {
@@ -29,7 +30,7 @@ const statusLabels = {
   unknown: "Unknown",
 };
 
-export default function ServiceCard({ service }: ServiceCardProps) {
+export default function ServiceCard({ service, onEdit }: ServiceCardProps) {
   const Icon = categoryIcons[service.category as keyof typeof categoryIcons] || Server;
   const statusColor = statusColors[service.status as keyof typeof statusColors];
   const statusLabel = statusLabels[service.status as keyof typeof statusLabels];
@@ -117,6 +118,7 @@ export default function ServiceCard({ service }: ServiceCardProps) {
           <Button
             variant="secondary"
             size="sm"
+            onClick={() => onEdit(service)}
             className="px-3 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition-colors"
           >
             <Edit className="w-4 h-4" />
