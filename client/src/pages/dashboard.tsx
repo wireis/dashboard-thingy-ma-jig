@@ -19,7 +19,6 @@ export default function Dashboard() {
     <div className="min-h-screen bg-slate-900">
       <DashboardHeader 
         onAddService={() => setIsModalOpen(true)}
-        onManageCategories={() => setIsCategoryModalOpen(true)}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
       />
@@ -47,11 +46,6 @@ export default function Dashboard() {
       <AddServiceModal 
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-      />
-      
-      <CategoryManagementModal
-        isOpen={isCategoryModalOpen}
-        onClose={() => setIsCategoryModalOpen(false)}
       />
     </div>
   );
