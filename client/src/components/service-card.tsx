@@ -99,32 +99,7 @@ export default function ServiceCard({ service, onEdit }: ServiceCardProps) {
           </div>
         </div>
 
-        <div className="space-y-2 mb-4 text-sm">
-          {service.url && (
-            <div className="flex justify-between">
-              <span className="text-slate-400">URL:</span>
-              <span className="text-slate-200 font-mono text-xs truncate max-w-32">
-                {service.url}
-              </span>
-            </div>
-          )}
-          {service.port && (
-            <div className="flex justify-between">
-              <span className="text-slate-400">Port:</span>
-              <span className="text-slate-200 font-mono">{service.port}</span>
-            </div>
-          )}
-          {service.location && (
-            <div className="flex justify-between">
-              <span className="text-slate-400">Location:</span>
-              <span className="text-slate-200">{service.location}</span>
-            </div>
-          )}
-          <div className="flex justify-between">
-            <span className="text-slate-400">Last Check:</span>
-            <span className="text-slate-200">{formatLastChecked(service.lastChecked?.toString() || null)}</span>
-          </div>
-        </div>
+
 
         {service.description && (
           <p className="text-xs text-slate-400 mb-4 line-clamp-2">
