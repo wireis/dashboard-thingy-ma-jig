@@ -44,6 +44,7 @@ export class DatabaseStorage implements IStorage {
         description: insertService.description || null,
         provider: insertService.provider || null,
         location: insertService.location || null,
+        icon: insertService.icon || null,
       })
       .returning();
     return service;
@@ -58,6 +59,7 @@ export class DatabaseStorage implements IStorage {
         description: updates.description || null,
         provider: updates.provider || null,
         location: updates.location || null,
+        icon: updates.icon || null,
       })
       .where(eq(services.id, id))
       .returning();
