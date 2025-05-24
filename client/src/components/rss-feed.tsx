@@ -79,33 +79,52 @@ export default function RSSFeed() {
           ) : (
             rssItems.slice(0, 8).map((item, index) => (
               <div key={item.guid || index} className="border-b border-slate-700 pb-3 last:border-b-0">
-                <h4 className="text-sm font-medium text-white mb-1 leading-tight hover:text-blue-400 transition-colors">
-                  <a 
-                    href={item.link} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="flex items-start gap-2"
-                  >
-                    <span>{item.title}</span>
-                    <ExternalLink className="w-3 h-3 mt-0.5 flex-shrink-0 opacity-60" />
-                  </a>
-                </h4>
-                <div className="flex items-center gap-2 mb-2">
-                  <p className="text-xs text-slate-400">
-                    {item.pubDate ? formatTimeAgo(item.pubDate) : "Unknown time"}
-                  </p>
-                  {item.feedName && (
-                    <>
-                      <span className="text-xs text-slate-500">•</span>
-                      <span className="text-xs text-blue-400">{item.feedName}</span>
-                    </>
-                  )}
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 mt-1">
+                    <img
+                      src={`https://www.google.com/s2/favicons?domain=${new URL(item.link).hostname}&sz=32`}
+                      alt={item.feedName || "Feed"}
+                      className="w-6 h-6 rounded-sm bg-slate-600"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        target.nextElementSibling?.classList.remove('hidden');
+                      }}
+                    />
+                    <div className="w-6 h-6 bg-slate-600 rounded-sm flex items-center justify-center hidden">
+                      <Newspaper className="w-3 h-3 text-slate-400" />
+                    </div>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-sm font-medium text-white mb-1 leading-tight hover:text-blue-400 transition-colors">
+                      <a 
+                        href={item.link} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-start gap-2"
+                      >
+                        <span className="flex-1">{item.title}</span>
+                        <ExternalLink className="w-3 h-3 mt-0.5 flex-shrink-0 opacity-60" />
+                      </a>
+                    </h4>
+                    <div className="flex items-center gap-2 mb-2">
+                      <p className="text-xs text-slate-400">
+                        {item.pubDate ? formatTimeAgo(item.pubDate) : "Unknown time"}
+                      </p>
+                      {item.feedName && (
+                        <>
+                          <span className="text-xs text-slate-500">•</span>
+                          <span className="text-xs text-blue-400">{item.feedName}</span>
+                        </>
+                      )}
+                    </div>
+                    {item.description && (
+                      <p className="text-xs text-slate-300 line-clamp-2">
+                        {item.description}
+                      </p>
+                    )}
+                  </div>
                 </div>
-                {item.description && (
-                  <p className="text-xs text-slate-300 line-clamp-2">
-                    {item.description}
-                  </p>
-                )}
               </div>
             ))
           )}
