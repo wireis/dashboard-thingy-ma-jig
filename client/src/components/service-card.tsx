@@ -101,11 +101,7 @@ export default function ServiceCard({ service, onEdit }: ServiceCardProps) {
 
 
 
-        {service.description && (
-          <p className="text-xs text-slate-400 mb-4 line-clamp-2">
-            {service.description}
-          </p>
-        )}
+
 
         <div className="flex space-x-2">
           <Button
