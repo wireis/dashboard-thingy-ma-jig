@@ -51,6 +51,7 @@ export default function EditServiceModal({ isOpen, onClose, service }: EditServi
       provider: "",
       port: "",
       location: "",
+      icon: "",
     },
   });
 
@@ -65,6 +66,7 @@ export default function EditServiceModal({ isOpen, onClose, service }: EditServi
         provider: service.provider || "",
         port: service.port || "",
         location: service.location || "",
+        icon: service.icon || "",
       });
     }
   }, [service, form]);
@@ -190,6 +192,7 @@ export default function EditServiceModal({ isOpen, onClose, service }: EditServi
                       <Input
                         placeholder="Digital Ocean, Docker, etc."
                         {...field}
+                        value={field.value || ""}
                         className="bg-slate-800 border-slate-600 text-white"
                       />
                     </FormControl>
@@ -208,6 +211,7 @@ export default function EditServiceModal({ isOpen, onClose, service }: EditServi
                       <Input
                         placeholder="8080"
                         {...field}
+                        value={field.value || ""}
                         className="bg-slate-800 border-slate-600 text-white"
                       />
                     </FormControl>
