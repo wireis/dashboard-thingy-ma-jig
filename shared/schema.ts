@@ -13,6 +13,7 @@ export const services = pgTable("services", {
   port: text("port"),
   location: text("location"),
   icon: text("icon"),
+  hidden: boolean("hidden").notNull().default(false),
   lastChecked: timestamp("last_checked"),
   createdAt: timestamp("created_at").defaultNow(),
 });

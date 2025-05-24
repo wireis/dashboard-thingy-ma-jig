@@ -5,6 +5,7 @@ import { eq, like, or } from "drizzle-orm";
 export interface IStorage {
   // Service CRUD operations
   getServices(): Promise<Service[]>;
+  getHiddenServices(): Promise<Service[]>;
   getService(id: number): Promise<Service | undefined>;
   createService(service: InsertService): Promise<Service>;
   updateService(id: number, updates: UpdateService): Promise<Service | undefined>;
@@ -41,7 +42,16 @@ export interface IStorage {
 
 export class DatabaseStorage implements IStorage {
   async getServices(): Promise<Service[]> {
-    const result = await db.select().from(services).orderBy(services.id);
+    const result = await db.select().from(services)
+      .where(eq(services.hidden, false))
+      .orderBy(services.id);
+    return result;
+  }
+
+  async getHiddenServices(): Promise<Service[]> {
+    const result = await db.select().from(services)
+      .where(eq(services.hidden, true))
+      .orderBy(services.id);
     return result;
   }
 

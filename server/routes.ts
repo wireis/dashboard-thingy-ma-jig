@@ -23,6 +23,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/services/hidden", async (req, res) => {
+    try {
+      const services = await storage.getHiddenServices();
+      res.json(services);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch hidden services" });
+    }
+  });
+
   app.get("/api/services/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
