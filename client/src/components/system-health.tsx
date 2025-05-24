@@ -1,9 +1,14 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
-import { Activity } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Activity, Settings } from "lucide-react";
 import type { SystemHealth as SystemHealthType } from "@shared/schema";
+import GlancesSettingsModal from "./glances-settings-modal";
 
 export default function SystemHealth() {
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  
   const { data: health, isLoading, error } = useQuery<SystemHealthType>({
     queryKey: ["/api/system-health"],
     refetchInterval: 30000, // Refresh every 30 seconds
@@ -17,17 +22,34 @@ export default function SystemHealth() {
 
   if (error) {
     return (
-      <Card className="bg-slate-800 border-slate-700">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-white">System Health</h3>
-            <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
-              <Activity className="text-green-500 w-5 h-5" />
+      <>
+        <Card className="bg-slate-800 border-slate-700">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-white">System Health</h3>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsSettingsOpen(true)}
+                  className="text-slate-400 hover:text-white hover:bg-slate-700 p-1 h-8 w-8"
+                >
+                  <Settings className="h-4 w-4" />
+                </Button>
+                <div className="w-8 h-8 bg-red-500/20 rounded-lg flex items-center justify-center">
+                  <Activity className="text-red-500 w-5 h-5" />
+                </div>
+              </div>
             </div>
-          </div>
-          <p className="text-red-400 text-sm">Failed to load system health</p>
-        </CardContent>
-      </Card>
+            <p className="text-red-400 text-sm">Failed to load system health - Check Glances configuration</p>
+          </CardContent>
+        </Card>
+        
+        <GlancesSettingsModal 
+          isOpen={isSettingsOpen}
+          onClose={() => setIsSettingsOpen(false)}
+        />
+      </>
     );
   }
 
@@ -60,14 +82,25 @@ export default function SystemHealth() {
   if (!health) return null;
 
   return (
-    <Card className="bg-slate-800 border-slate-700">
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-white">System Health</h3>
-          <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
-            <Activity className="text-green-500 w-5 h-5" />
+    <>
+      <Card className="bg-slate-800 border-slate-700">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-white">System Health</h3>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsSettingsOpen(true)}
+                className="text-slate-400 hover:text-white hover:bg-slate-700 p-1 h-8 w-8"
+              >
+                <Settings className="h-4 w-4" />
+              </Button>
+              <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
+                <Activity className="text-green-500 w-5 h-5" />
+              </div>
+            </div>
           </div>
-        </div>
         
         <div className="space-y-4">
           <div>
@@ -122,5 +155,11 @@ export default function SystemHealth() {
         </div>
       </CardContent>
     </Card>
+    
+      <GlancesSettingsModal 
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+      />
+    </>
   );
 }
