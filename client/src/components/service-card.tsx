@@ -36,7 +36,16 @@ export default function ServiceCard({ service, onEdit }: ServiceCardProps) {
   const statusLabel = statusLabels[service.status as keyof typeof statusLabels];
 
   const handleOpenService = () => {
-    window.open(service.url, "_blank", "noopener,noreferrer");
+    let fullUrl = service.url;
+    
+    // Add port if specified and not already in URL
+    if (service.port && !service.url.includes(':' + service.port)) {
+      // Remove trailing slash if present
+      const baseUrl = service.url.replace(/\/$/, '');
+      fullUrl = `${baseUrl}:${service.port}`;
+    }
+    
+    window.open(fullUrl, "_blank", "noopener,noreferrer");
   };
 
   const formatLastChecked = (date: string | null) => {
