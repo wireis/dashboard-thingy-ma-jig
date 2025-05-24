@@ -49,10 +49,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getHiddenServices(): Promise<Service[]> {
-    const result = await db.select().from(services)
-      .where(eq(services.hidden, true))
-      .orderBy(services.id);
-    return result;
+    try {
+      const result = await db.select().from(services)
+        .where(eq(services.hidden, true))
+        .orderBy(services.id);
+      return result;
+    } catch (error) {
+      console.error("Error fetching hidden services:", error);
+      return [];
+    }
   }
 
   async getService(id: number): Promise<Service | undefined> {
