@@ -7,20 +7,16 @@ import type { Service } from "@shared/schema";
 
 interface ServicesGridProps {
   searchQuery: string;
-  selectedCategory: string;
-  onCategoryChange: (category: string) => void;
 }
 
 export default function ServicesGrid({ 
-  searchQuery, 
-  selectedCategory, 
-  onCategoryChange 
+  searchQuery
 }: ServicesGridProps) {
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   
   const { data: services = [], isLoading } = useQuery<Service[]>({
-    queryKey: ["/api/services", { category: selectedCategory, search: searchQuery }],
+    queryKey: ["/api/services", { search: searchQuery }],
   });
 
   const handleEditService = (service: Service) => {
@@ -32,8 +28,6 @@ export default function ServicesGrid({
     setIsEditModalOpen(false);
     setEditingService(null);
   };
-
-  const categories = ["All", "VPS", "Docker", "External", "Network"];
 
   if (isLoading) {
     return (
@@ -52,23 +46,6 @@ export default function ServicesGrid({
     <div>
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold text-white">Your Services</h2>
-        <div className="flex space-x-2">
-          {categories.map((category) => (
-            <Button
-              key={category}
-              variant={selectedCategory === category ? "default" : "secondary"}
-              size="sm"
-              onClick={() => onCategoryChange(category)}
-              className={
-                selectedCategory === category
-                  ? "bg-primary text-white"
-                  : "bg-slate-700 text-slate-300 hover:bg-slate-600"
-              }
-            >
-              {category}
-            </Button>
-          ))}
-        </div>
       </div>
 
       {services.length === 0 ? (

@@ -13,7 +13,6 @@ export default function Dashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
 
   return (
     <div className="min-h-screen bg-slate-900">
@@ -30,8 +29,6 @@ export default function Dashboard() {
           <div className="xl:col-span-2">
             <ServicesGrid 
               searchQuery={searchQuery}
-              selectedCategory={selectedCategory}
-              onCategoryChange={setSelectedCategory}
             />
           </div>
           

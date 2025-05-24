@@ -11,15 +11,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { category, search } = req.query;
       
       let services;
-      if (search && search.trim()) {
-        // If there's a search query, search all services
-        services = await storage.searchServices(search as string);
-        // Then filter by category if it's not "All"
-        if (category && category !== "All") {
-          services = services.filter(service => service.category === category);
-        }
-      } else if (category && category !== "All") {
-        services = await storage.getServicesByCategory(category as string);
+      if (search && typeof search === 'string' && search.trim()) {
+        services = await storage.searchServices(search);
       } else {
         services = await storage.getServices();
       }
