@@ -1,4 +1,4 @@
-import { services, quickLinks, categories, type Service, type InsertService, type UpdateService, type QuickLink, type InsertQuickLink, type UpdateQuickLink, type Category, type InsertCategory, type UpdateCategory } from "@shared/schema";
+import { services, quickLinks, categories, rssFeeds, type Service, type InsertService, type UpdateService, type QuickLink, type InsertQuickLink, type UpdateQuickLink, type Category, type InsertCategory, type UpdateCategory, type RssFeed, type InsertRssFeed, type UpdateRssFeed } from "@shared/schema";
 import { db } from "./db";
 import { eq, like, or } from "drizzle-orm";
 
@@ -29,6 +29,14 @@ export interface IStorage {
   createCategory(category: InsertCategory): Promise<Category>;
   updateCategory(id: number, updates: UpdateCategory): Promise<Category | undefined>;
   deleteCategory(id: number): Promise<boolean>;
+
+  // RSS Feed CRUD operations
+  getRssFeeds(): Promise<RssFeed[]>;
+  getRssFeed(id: number): Promise<RssFeed | undefined>;
+  createRssFeed(rssFeed: InsertRssFeed): Promise<RssFeed>;
+  updateRssFeed(id: number, updates: UpdateRssFeed): Promise<RssFeed | undefined>;
+  deleteRssFeed(id: number): Promise<boolean>;
+  getActiveRssFeeds(): Promise<RssFeed[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -176,6 +184,52 @@ export class DatabaseStorage implements IStorage {
   async deleteCategory(id: number): Promise<boolean> {
     const result = await db.delete(categories).where(eq(categories.id, id));
     return (result.rowCount || 0) > 0;
+  }
+
+  // RSS Feed CRUD operations
+  async getRssFeeds(): Promise<RssFeed[]> {
+    const result = await db.select().from(rssFeeds).orderBy(rssFeeds.id);
+    return result;
+  }
+
+  async getRssFeed(id: number): Promise<RssFeed | undefined> {
+    const [rssFeed] = await db.select().from(rssFeeds).where(eq(rssFeeds.id, id));
+    return rssFeed || undefined;
+  }
+
+  async createRssFeed(insertRssFeed: InsertRssFeed): Promise<RssFeed> {
+    const [rssFeed] = await db
+      .insert(rssFeeds)
+      .values({
+        ...insertRssFeed,
+        updatedAt: new Date(),
+      })
+      .returning();
+    return rssFeed;
+  }
+
+  async updateRssFeed(id: number, updates: UpdateRssFeed): Promise<RssFeed | undefined> {
+    const [rssFeed] = await db
+      .update(rssFeeds)
+      .set({
+        ...updates,
+        updatedAt: new Date(),
+      })
+      .where(eq(rssFeeds.id, id))
+      .returning();
+    return rssFeed || undefined;
+  }
+
+  async deleteRssFeed(id: number): Promise<boolean> {
+    const result = await db.delete(rssFeeds).where(eq(rssFeeds.id, id));
+    return (result.rowCount || 0) > 0;
+  }
+
+  async getActiveRssFeeds(): Promise<RssFeed[]> {
+    const result = await db.select().from(rssFeeds)
+      .where(eq(rssFeeds.isActive, true))
+      .orderBy(rssFeeds.id);
+    return result;
   }
 }
 

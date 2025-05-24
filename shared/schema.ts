@@ -82,12 +82,36 @@ export interface BitcoinData {
 }
 
 // RSS feed item type
+// RSS Feeds table
+export const rssFeeds = pgTable("rss_feeds", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  url: text("url").notNull(),
+  description: text("description"),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertRssFeedSchema = createInsertSchema(rssFeeds).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const updateRssFeedSchema = insertRssFeedSchema.partial();
+
+export type InsertRssFeed = z.infer<typeof insertRssFeedSchema>;
+export type UpdateRssFeed = z.infer<typeof updateRssFeedSchema>;
+export type RssFeed = typeof rssFeeds.$inferSelect;
+
 export interface RSSItem {
   title: string;
   link: string;
   description: string;
   pubDate: string;
   guid: string;
+  feedName?: string;
 }
 
 // System health type
