@@ -117,7 +117,7 @@ export default function SimpleQuickLinks() {
               {quickLinks.map((link) => (
                 <div
                   key={link.id}
-                  className="flex items-center justify-between p-3 border rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                  className="flex items-center justify-between p-3 border rounded-lg hover:bg-slate-700 dark:hover:bg-slate-600 transition-colors"
                 >
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     <div className="flex-shrink-0">
