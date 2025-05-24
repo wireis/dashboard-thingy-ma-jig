@@ -75,22 +75,30 @@ export class DatabaseStorage implements IStorage {
         provider: insertService.provider || null,
         location: insertService.location || null,
         icon: insertService.icon || null,
+        hidden: insertService.hidden || false,
       })
       .returning();
     return service;
   }
 
   async updateService(id: number, updates: UpdateService): Promise<Service | undefined> {
+    const updateData: any = {
+      ...updates,
+      port: updates.port || null,
+      description: updates.description || null,
+      provider: updates.provider || null,
+      location: updates.location || null,
+      icon: updates.icon || null,
+    };
+    
+    // Explicitly handle the hidden field
+    if (updates.hidden !== undefined) {
+      updateData.hidden = updates.hidden;
+    }
+    
     const [service] = await db
       .update(services)
-      .set({
-        ...updates,
-        port: updates.port || null,
-        description: updates.description || null,
-        provider: updates.provider || null,
-        location: updates.location || null,
-        icon: updates.icon || null,
-      })
+      .set(updateData)
       .where(eq(services.id, id))
       .returning();
     return service || undefined;
