@@ -317,6 +317,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Category routes
+  app.get("/api/categories", async (req, res) => {
+    try {
+      const categories = await storage.getCategories();
+      res.json(categories);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch categories" });
+    }
+  });
+
+  app.post("/api/categories", async (req, res) => {
+    try {
+      const validatedData = insertCategorySchema.parse(req.body);
+      const category = await storage.createCategory(validatedData);
+      res.status(201).json(category);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid category data", details: error.errors });
+      }
+      res.status(500).json({ error: "Failed to create category" });
+    }
+  });
+
+  app.put("/api/categories/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const validatedData = updateCategorySchema.parse(req.body);
+      const category = await storage.updateCategory(id, validatedData);
+      
+      if (!category) {
+        return res.status(404).json({ error: "Category not found" });
+      }
+      
+      res.json(category);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid category data", details: error.errors });
+      }
+      res.status(500).json({ error: "Failed to update category" });
+    }
+  });
+
+  app.delete("/api/categories/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const deleted = await storage.deleteCategory(id);
+      
+      if (!deleted) {
+        return res.status(404).json({ error: "Category not found" });
+      }
+      
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete category" });
+    }
+  });
+
   const httpServer = createServer(app);
   // Quick Links routes
   app.get("/api/quick-links", async (req, res) => {

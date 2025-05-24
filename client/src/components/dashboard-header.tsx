@@ -1,16 +1,18 @@
 import { useState, useEffect } from "react";
-import { Search, Plus, Server, Edit3, Check, X } from "lucide-react";
+import { Search, Plus, Server, Edit3, Check, X, Tags } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 interface DashboardHeaderProps {
   onAddService: () => void;
+  onManageCategories: () => void;
   searchQuery: string;
   onSearchChange: (query: string) => void;
 }
 
 export default function DashboardHeader({ 
   onAddService, 
+  onManageCategories,
   searchQuery, 
   onSearchChange 
 }: DashboardHeaderProps) {
@@ -106,6 +108,15 @@ export default function DashboardHeader({
             />
             <Search className="absolute left-3 top-3 text-slate-400 w-4 h-4" />
           </div>
+          
+          <Button 
+            onClick={onManageCategories}
+            variant="outline"
+            className="border-slate-600 text-slate-300 hover:bg-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+          >
+            <Tags className="w-4 h-4 mr-2" />
+            Categories
+          </Button>
           
           <Button 
             onClick={onAddService}
