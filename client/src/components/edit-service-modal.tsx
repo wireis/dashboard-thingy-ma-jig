@@ -237,6 +237,27 @@ export default function EditServiceModal({ isOpen, onClose, service }: EditServi
 
             <FormField
               control={form.control}
+              name="icon"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-slate-300">Icon URL</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="https://dashboardicons.com/icons/jellyfin.svg"
+                      {...field}
+                      className="bg-slate-800 border-slate-600 text-white"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                  <p className="text-xs text-slate-400">
+                    Get free icons from <a href="https://dashboardicons.com" target="_blank" className="text-blue-400 hover:text-blue-300">dashboardicons.com</a>
+                  </p>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="description"
               render={({ field }) => (
                 <FormItem>

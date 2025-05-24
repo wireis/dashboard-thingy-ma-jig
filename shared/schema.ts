@@ -12,6 +12,7 @@ export const services = pgTable("services", {
   status: text("status").notNull().default("unknown"), // online, offline, warning, unknown
   port: text("port"),
   location: text("location"),
+  icon: text("icon"),
   lastChecked: timestamp("last_checked"),
   createdAt: timestamp("created_at").defaultNow(),
 });

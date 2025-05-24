@@ -66,7 +66,19 @@ export default function ServiceCard({ service, onEdit }: ServiceCardProps) {
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
-              <Icon className="text-blue-500 w-5 h-5" />
+              {service.icon ? (
+                <img 
+                  src={service.icon} 
+                  alt={`${service.name} icon`}
+                  className="w-6 h-6 object-contain"
+                  onError={(e) => {
+                    // Fallback to default icon if custom icon fails to load
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                  }}
+                />
+              ) : null}
+              <Icon className={`text-blue-500 w-5 h-5 ${service.icon ? 'hidden' : ''}`} />
             </div>
             <div>
               <h3 className="font-medium text-white group-hover:text-blue-400 transition-colors">
