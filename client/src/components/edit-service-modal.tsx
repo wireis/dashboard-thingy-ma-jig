@@ -231,6 +231,7 @@ export default function EditServiceModal({ isOpen, onClose, service }: EditServi
                     <Input
                       placeholder="London, UK or localhost"
                       {...field}
+                      value={field.value || ""}
                       className="bg-slate-800 border-slate-600 text-white"
                     />
                   </FormControl>
@@ -248,7 +249,11 @@ export default function EditServiceModal({ isOpen, onClose, service }: EditServi
                   <FormControl>
                     <Input
                       placeholder="https://dashboardicons.com/icons/jellyfin.svg"
-                      {...field}
+                      value={field.value || ""}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      name={field.name}
+                      ref={field.ref}
                       className="bg-slate-800 border-slate-600 text-white"
                     />
                   </FormControl>

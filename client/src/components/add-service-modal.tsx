@@ -228,7 +228,11 @@ export default function AddServiceModal({ isOpen, onClose }: AddServiceModalProp
                   <FormControl>
                     <Input
                       placeholder="https://dashboardicons.com/icons/jellyfin.svg"
-                      {...field}
+                      value={field.value || ""}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      name={field.name}
+                      ref={field.ref}
                       className="bg-slate-800 border-slate-600 text-white"
                     />
                   </FormControl>
