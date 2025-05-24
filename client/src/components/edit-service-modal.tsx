@@ -79,6 +79,7 @@ export default function EditServiceModal({ isOpen, onClose, service }: EditServi
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/services"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/services/hidden"] });
       toast({
         title: "Service updated",
         description: "Your service has been successfully updated.",
@@ -97,9 +98,39 @@ export default function EditServiceModal({ isOpen, onClose, service }: EditServi
     },
   });
 
+  const deleteServiceMutation = useMutation({
+    mutationFn: async () => {
+      if (!service) throw new Error("No service to delete");
+      const response = await apiRequest("DELETE", `/api/services/${service.id}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/services"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/services/hidden"] });
+      toast({
+        title: "Service deleted",
+        description: "Your service has been successfully deleted.",
+      });
+      onClose();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete service. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const onSubmit = async (data: UpdateService) => {
     setIsSubmitting(true);
     updateServiceMutation.mutate(data);
+  };
+
+  const handleDelete = () => {
+    if (confirm(`Are you sure you want to delete "${service?.name}"? This action cannot be undone.`)) {
+      deleteServiceMutation.mutate();
+    }
   };
 
   const handleClose = () => {
@@ -312,16 +343,24 @@ export default function EditServiceModal({ isOpen, onClose, service }: EditServi
             <div className="flex space-x-3 pt-4">
               <Button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || deleteServiceMutation.isPending}
                 className="flex-1 bg-primary hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-colors"
               >
                 {isSubmitting ? "Updating..." : "Update Service"}
               </Button>
               <Button
                 type="button"
+                onClick={handleDelete}
+                disabled={isSubmitting || deleteServiceMutation.isPending}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+              >
+                {deleteServiceMutation.isPending ? "Deleting..." : "Delete"}
+              </Button>
+              <Button
+                type="button"
                 variant="secondary"
                 onClick={handleClose}
-                disabled={isSubmitting}
+                disabled={isSubmitting || deleteServiceMutation.isPending}
                 className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition-colors"
               >
                 Cancel
