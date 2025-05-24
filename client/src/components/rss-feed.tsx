@@ -60,7 +60,7 @@ export default function RSSFeed() {
           </div>
         </div>
         
-        <div className="space-y-4 max-h-96 overflow-y-auto">
+        <div className="space-y-4 max-h-96 xl:max-h-[500px] overflow-y-auto">
           {isLoading ? (
             <div className="animate-pulse space-y-4">
               {[...Array(4)].map((_, i) => (
@@ -77,7 +77,7 @@ export default function RSSFeed() {
               No RSS feeds configured or articles available
             </p>
           ) : (
-            rssItems.slice(0, 8).map((item, index) => (
+            rssItems.slice(0, 12).map((item, index) => (
               <div key={item.guid || index} className="border-b border-slate-700 pb-3 last:border-b-0">
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0">
@@ -125,7 +125,7 @@ export default function RSSFeed() {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-medium text-white mb-1 leading-tight hover:text-blue-400 transition-colors">
+                    <h4 className="text-sm xl:text-base font-medium text-white mb-1 leading-tight hover:text-blue-400 transition-colors">
                       <a 
                         href={item.link} 
                         target="_blank" 
@@ -137,18 +137,18 @@ export default function RSSFeed() {
                       </a>
                     </h4>
                     <div className="flex items-center gap-2 mb-2">
-                      <p className="text-xs text-slate-400">
+                      <p className="text-xs xl:text-sm text-slate-400">
                         {item.pubDate ? formatTimeAgo(item.pubDate) : "Unknown time"}
                       </p>
                       {item.feedName && (
                         <>
-                          <span className="text-xs text-slate-500">•</span>
-                          <span className="text-xs text-blue-400">{item.feedName}</span>
+                          <span className="text-xs xl:text-sm text-slate-500">•</span>
+                          <span className="text-xs xl:text-sm text-blue-400">{item.feedName}</span>
                         </>
                       )}
                     </div>
                     {item.description && (
-                      <p className="text-xs text-slate-300 line-clamp-2">
+                      <p className="text-xs xl:text-sm text-slate-300 line-clamp-2">
                         {item.description}
                       </p>
                     )}

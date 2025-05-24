@@ -113,7 +113,7 @@ export default function SimpleQuickLinks() {
               <Button onClick={() => setIsModalOpen(true)}>Add your first link</Button>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-3 max-h-80 xl:max-h-[500px] overflow-y-auto">
               {quickLinks.map((link) => (
                 <div
                   key={link.id}
