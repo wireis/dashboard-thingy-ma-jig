@@ -28,6 +28,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const services = await storage.getHiddenServices();
       res.json(services);
     } catch (error) {
+      console.error("Error fetching hidden services:", error);
       res.status(500).json({ error: "Failed to fetch hidden services" });
     }
   });

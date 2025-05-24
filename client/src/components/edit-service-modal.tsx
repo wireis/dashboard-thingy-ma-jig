@@ -284,6 +284,31 @@ export default function EditServiceModal({ isOpen, onClose, service }: EditServi
               )}
             />
 
+            <FormField
+              control={form.control}
+              name="hidden"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <input
+                      type="checkbox"
+                      checked={field.value || false}
+                      onChange={field.onChange}
+                      className="mt-1 h-4 w-4 text-orange-600 border-slate-600 rounded focus:ring-orange-500"
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel className="text-slate-300">
+                      Hidden Service
+                    </FormLabel>
+                    <p className="text-xs text-slate-400">
+                      Hide this service from the main dashboard. Press 'H' to toggle visibility.
+                    </p>
+                  </div>
+                </FormItem>
+              )}
+            />
+
             <div className="flex space-x-3 pt-4">
               <Button
                 type="submit"
