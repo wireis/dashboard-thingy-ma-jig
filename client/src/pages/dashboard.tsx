@@ -26,8 +26,8 @@ export default function Dashboard() {
       <main className="max-w-7xl mx-auto px-6 py-8">
         <QuickStats />
         
-        <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
-          <div className="xl:col-span-3">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+          <div className="xl:col-span-2">
             <ServicesGrid 
               searchQuery={searchQuery}
               selectedCategory={selectedCategory}
