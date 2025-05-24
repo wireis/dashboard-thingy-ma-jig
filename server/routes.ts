@@ -197,6 +197,136 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // RSS feeds CRUD endpoints
+  app.get("/api/rss-feeds", async (req, res) => {
+    try {
+      const feeds = await storage.getRssFeeds();
+      res.json(feeds);
+    } catch (error) {
+      console.error("Error fetching RSS feeds:", error);
+      res.status(500).json({ error: "Failed to fetch RSS feeds" });
+    }
+  });
+
+  app.get("/api/rss-feeds/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const feed = await storage.getRssFeed(id);
+      if (!feed) {
+        return res.status(404).json({ error: "RSS feed not found" });
+      }
+      res.json(feed);
+    } catch (error) {
+      console.error("Error fetching RSS feed:", error);
+      res.status(500).json({ error: "Failed to fetch RSS feed" });
+    }
+  });
+
+  app.post("/api/rss-feeds", async (req, res) => {
+    try {
+      const result = insertRssFeedSchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({ error: "Invalid RSS feed data", details: result.error.issues });
+      }
+      
+      const feed = await storage.createRssFeed(result.data);
+      res.status(201).json(feed);
+    } catch (error) {
+      console.error("Error creating RSS feed:", error);
+      res.status(500).json({ error: "Failed to create RSS feed" });
+    }
+  });
+
+  app.patch("/api/rss-feeds/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const result = updateRssFeedSchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({ error: "Invalid RSS feed data", details: result.error.issues });
+      }
+      
+      const feed = await storage.updateRssFeed(id, result.data);
+      if (!feed) {
+        return res.status(404).json({ error: "RSS feed not found" });
+      }
+      res.json(feed);
+    } catch (error) {
+      console.error("Error updating RSS feed:", error);
+      res.status(500).json({ error: "Failed to update RSS feed" });
+    }
+  });
+
+  app.delete("/api/rss-feeds/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const success = await storage.deleteRssFeed(id);
+      if (!success) {
+        return res.status(404).json({ error: "RSS feed not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting RSS feed:", error);
+      res.status(500).json({ error: "Failed to delete RSS feed" });
+    }
+  });
+
+  // Combined RSS feed endpoint - fetches from all active feeds
+  app.get("/api/rss/combined", async (req, res) => {
+    try {
+      const activeFeeds = await storage.getActiveRssFeeds();
+      const allItems: RSSItem[] = [];
+
+      for (const feed of activeFeeds) {
+        try {
+          const response = await fetch(feed.url, {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (compatible; RSS Reader)',
+              'Accept': 'application/rss+xml, application/xml, text/xml'
+            }
+          });
+          
+          if (!response.ok) continue;
+          
+          const xmlText = await response.text();
+          const itemMatches = xmlText.match(/<item[^>]*>(.*?)<\/item>/gs);
+          
+          if (itemMatches) {
+            for (let i = 0; i < Math.min(itemMatches.length, 10); i++) {
+              const item = itemMatches[i];
+              const title = item.match(/<title[^>]*><!\[CDATA\[(.*?)\]\]><\/title>/s)?.[1] || 
+                           item.match(/<title[^>]*>(.*?)<\/title>/s)?.[1] || "";
+              const link = item.match(/<link[^>]*>(.*?)<\/link>/s)?.[1] || "";
+              const description = item.match(/<description[^>]*><!\[CDATA\[(.*?)\]\]><\/description>/s)?.[1] || 
+                                 item.match(/<description[^>]*>(.*?)<\/description>/s)?.[1] || "";
+              const pubDate = item.match(/<pubDate[^>]*>(.*?)<\/pubDate>/s)?.[1] || "";
+              const guid = item.match(/<guid[^>]*>(.*?)<\/guid>/s)?.[1] || `${feed.id}-${i}`;
+              
+              if (title) {
+                allItems.push({
+                  title: title.trim(),
+                  link: link.trim(),
+                  description: description.replace(/<[^>]*>/g, "").trim().substring(0, 200),
+                  pubDate,
+                  guid,
+                  feedName: feed.name
+                });
+              }
+            }
+          }
+        } catch (feedError) {
+          console.error(`Error fetching feed ${feed.name}:`, feedError);
+        }
+      }
+
+      // Sort by date (newest first) and return first 20 items
+      allItems.sort((a, b) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime());
+      res.json(allItems.slice(0, 20));
+    } catch (error) {
+      console.error("RSS combined feed error:", error);
+      res.status(500).json({ error: "Failed to fetch RSS feeds" });
+    }
+  });
+
   // System health endpoint (Glances integration)
   app.get("/api/system-health", async (req, res) => {
     try {
