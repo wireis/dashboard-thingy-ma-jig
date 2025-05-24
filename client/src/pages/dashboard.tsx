@@ -7,9 +7,11 @@ import SystemHealth from "@/components/system-health";
 import SimpleQuickLinks from "@/components/simple-quick-links";
 
 import AddServiceModal from "@/components/add-service-modal";
+import CategoryManagementModal from "@/components/category-management-modal";
 
 export default function Dashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
@@ -17,6 +19,7 @@ export default function Dashboard() {
     <div className="min-h-screen bg-slate-900">
       <DashboardHeader 
         onAddService={() => setIsModalOpen(true)}
+        onManageCategories={() => setIsCategoryModalOpen(true)}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
       />
@@ -44,6 +47,11 @@ export default function Dashboard() {
       <AddServiceModal 
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+      />
+      
+      <CategoryManagementModal
+        isOpen={isCategoryModalOpen}
+        onClose={() => setIsCategoryModalOpen(false)}
       />
     </div>
   );
