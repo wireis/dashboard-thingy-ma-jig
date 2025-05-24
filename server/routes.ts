@@ -175,6 +175,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const pubDate = item.match(/<pubDate[^>]*>(.*?)<\/pubDate>/s)?.[1] || "";
           const guid = item.match(/<guid[^>]*>(.*?)<\/guid>/s)?.[1] || `${i}`;
           
+          // Extract image from various RSS image fields
+          let imageUrl = "";
+          const mediaContent = item.match(/<media:content[^>]*url="([^"]*)"[^>]*>/)?.[1];
+          const enclosureImg = item.match(/<enclosure[^>]*url="([^"]*)"[^>]*type="image[^"]*"/)?.[1];
+          const imgInDescription = description.match(/<img[^>]*src="([^"]*)"[^>]*>/)?.[1];
+          const mediaThumb = item.match(/<media:thumbnail[^>]*url="([^"]*)"[^>]*>/)?.[1];
+          
+          imageUrl = mediaContent || enclosureImg || mediaThumb || imgInDescription || "";
+          
           if (title) {
             items.push({
               title: title.trim(),
@@ -182,6 +191,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               description: description.replace(/<[^>]*>/g, "").trim().substring(0, 200),
               pubDate,
               guid,
+              imageUrl: imageUrl.trim()
             });
           }
         }
@@ -301,6 +311,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
               const pubDate = item.match(/<pubDate[^>]*>(.*?)<\/pubDate>/s)?.[1] || "";
               const guid = item.match(/<guid[^>]*>(.*?)<\/guid>/s)?.[1] || `${feed.id}-${i}`;
               
+              // Extract image from various RSS image fields
+              let imageUrl = "";
+              const mediaContent = item.match(/<media:content[^>]*url="([^"]*)"[^>]*>/)?.[1];
+              const enclosureImg = item.match(/<enclosure[^>]*url="([^"]*)"[^>]*type="image[^"]*"/)?.[1];
+              const imgInDescription = description.match(/<img[^>]*src="([^"]*)"[^>]*>/)?.[1];
+              const mediaThumb = item.match(/<media:thumbnail[^>]*url="([^"]*)"[^>]*>/)?.[1];
+              
+              imageUrl = mediaContent || enclosureImg || mediaThumb || imgInDescription || "";
+              
               if (title) {
                 allItems.push({
                   title: title.trim(),
@@ -308,7 +327,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   description: description.replace(/<[^>]*>/g, "").trim().substring(0, 200),
                   pubDate,
                   guid,
-                  feedName: feed.name
+                  feedName: feed.name,
+                  imageUrl: imageUrl.trim()
                 });
               }
             }

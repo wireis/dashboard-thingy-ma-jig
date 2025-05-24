@@ -112,6 +112,7 @@ export interface RSSItem {
   pubDate: string;
   guid: string;
   feedName?: string;
+  imageUrl?: string;
 }
 
 // System health type
