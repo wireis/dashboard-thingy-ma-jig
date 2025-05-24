@@ -102,7 +102,7 @@ export default function EditServiceModal({ isOpen, onClose, service }: EditServi
     mutationFn: async () => {
       if (!service) throw new Error("No service to delete");
       const response = await apiRequest("DELETE", `/api/services/${service.id}`);
-      return response.json();
+      return response.status === 204 ? {} : response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/services"] });
