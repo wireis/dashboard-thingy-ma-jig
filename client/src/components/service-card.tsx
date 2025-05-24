@@ -73,8 +73,12 @@ export default function ServiceCard({ service, onEdit }: ServiceCardProps) {
                   className="w-6 h-6 object-contain"
                   onError={(e) => {
                     // Fallback to default icon if custom icon fails to load
-                    e.currentTarget.style.display = 'none';
-                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                    const target = e.currentTarget as HTMLImageElement;
+                    target.style.display = 'none';
+                    const nextElement = target.nextElementSibling as HTMLElement;
+                    if (nextElement) {
+                      nextElement.classList.remove('hidden');
+                    }
                   }}
                 />
               ) : null}
