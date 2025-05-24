@@ -37,7 +37,7 @@ export default function RssFeedManagementModal({ isOpen, onClose }: RssFeedManag
 
   const createMutation = useMutation({
     mutationFn: async (data: InsertRssFeed) => {
-      const response = await apiRequest("/api/rss-feeds", {
+      const response = await fetch("/api/rss-feeds", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -58,7 +58,7 @@ export default function RssFeedManagementModal({ isOpen, onClose }: RssFeedManag
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: UpdateRssFeed }) => {
-      const response = await apiRequest(`/api/rss-feeds/${id}`, {
+      const response = await fetch(`/api/rss-feeds/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -78,7 +78,7 @@ export default function RssFeedManagementModal({ isOpen, onClose }: RssFeedManag
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      const response = await apiRequest(`/api/rss-feeds/${id}`, {
+      const response = await fetch(`/api/rss-feeds/${id}`, {
         method: "DELETE",
       });
       if (!response.ok) throw new Error("Failed to delete RSS feed");

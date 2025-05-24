@@ -114,11 +114,16 @@ export default function RSSFeed() {
         <Button 
           variant="secondary"
           className="w-full mt-4 bg-slate-700 hover:bg-slate-600 text-slate-300 py-2 rounded-lg text-sm transition-colors"
-          onClick={() => window.open("https://www.gbnews.uk", "_blank", "noopener,noreferrer")}
+          onClick={() => setIsManagementOpen(true)}
         >
-          View All News
+          Manage RSS Feeds
         </Button>
       </CardContent>
+      
+      <RssFeedManagementModal
+        isOpen={isManagementOpen}
+        onClose={() => setIsManagementOpen(false)}
+      />
     </Card>
   );
 }
