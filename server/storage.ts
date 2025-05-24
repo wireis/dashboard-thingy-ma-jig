@@ -1,4 +1,4 @@
-import { services, quickLinks, type Service, type InsertService, type UpdateService, type QuickLink, type InsertQuickLink, type UpdateQuickLink } from "@shared/schema";
+import { services, quickLinks, categories, type Service, type InsertService, type UpdateService, type QuickLink, type InsertQuickLink, type UpdateQuickLink, type Category, type InsertCategory, type UpdateCategory } from "@shared/schema";
 import { db } from "./db";
 import { eq, like, or } from "drizzle-orm";
 
@@ -22,6 +22,13 @@ export interface IStorage {
   updateQuickLink(id: number, updates: UpdateQuickLink): Promise<QuickLink | undefined>;
   deleteQuickLink(id: number): Promise<boolean>;
   getQuickLinksByCategory(category: string): Promise<QuickLink[]>;
+
+  // Category CRUD operations
+  getCategories(): Promise<Category[]>;
+  getCategory(id: number): Promise<Category | undefined>;
+  createCategory(category: InsertCategory): Promise<Category>;
+  updateCategory(id: number, updates: UpdateCategory): Promise<Category | undefined>;
+  deleteCategory(id: number): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -136,6 +143,39 @@ export class DatabaseStorage implements IStorage {
   async getQuickLinksByCategory(category: string): Promise<QuickLink[]> {
     const result = await db.select().from(quickLinks).where(eq(quickLinks.category, category));
     return result;
+  }
+
+  // Category management methods
+  async getCategories(): Promise<Category[]> {
+    const result = await db.select().from(categories).orderBy(categories.name);
+    return result;
+  }
+
+  async getCategory(id: number): Promise<Category | undefined> {
+    const [category] = await db.select().from(categories).where(eq(categories.id, id));
+    return category || undefined;
+  }
+
+  async createCategory(insertCategory: InsertCategory): Promise<Category> {
+    const [category] = await db
+      .insert(categories)
+      .values(insertCategory)
+      .returning();
+    return category;
+  }
+
+  async updateCategory(id: number, updates: UpdateCategory): Promise<Category | undefined> {
+    const [category] = await db
+      .update(categories)
+      .set(updates)
+      .where(eq(categories.id, id))
+      .returning();
+    return category || undefined;
+  }
+
+  async deleteCategory(id: number): Promise<boolean> {
+    const result = await db.delete(categories).where(eq(categories.id, id));
+    return (result.rowCount || 0) > 0;
   }
 }
 

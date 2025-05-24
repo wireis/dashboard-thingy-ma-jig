@@ -30,6 +30,26 @@ export type InsertService = z.infer<typeof insertServiceSchema>;
 export type UpdateService = z.infer<typeof updateServiceSchema>;
 export type Service = typeof services.$inferSelect;
 
+// Categories schema
+export const categories = pgTable("categories", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull().unique(),
+  description: text("description"),
+  color: text("color").default("#3B82F6"), // Default blue color
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertCategorySchema = createInsertSchema(categories).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const updateCategorySchema = insertCategorySchema.partial();
+
+export type InsertCategory = z.infer<typeof insertCategorySchema>;
+export type UpdateCategory = z.infer<typeof updateCategorySchema>;
+export type Category = typeof categories.$inferSelect;
+
 // Quick Links schema
 export const quickLinks = pgTable("quick_links", {
   id: serial("id").primaryKey(),
